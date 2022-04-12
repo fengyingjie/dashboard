@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@handsontable/vue3": "^11.1.0",
+    "axios": "^0.26.1",
     "handsontable": "^11.1.0",
     "vue": "^3.2.25"
   },
