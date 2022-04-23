@@ -8,7 +8,7 @@
     @close="handleClose"
     @select="handleSelect"
   >
-    <el-menu-item index="/filelist">
+    <el-menu-item index="/graph">
       <el-icon><icon-menu /></el-icon>
       <template #title>menu</template>
     </el-menu-item>

@@ -4,6 +4,7 @@
       <el-col :span="3">
         <div class="grid-content bg-purple-dark">
           <el-button @click="updateData">Update data</el-button>
+          <el-button @click="getDataFromRedmine">DataFromRedmine</el-button>
         </div>
       </el-col>
       <el-col :span="3">
@@ -62,15 +63,15 @@ const licenseKey = 'non-commercial-and-evaluation';
 const hotTableComponent = ref();
 
 //初始化axios共通設定
-axios.defaults.baseURL = 'http://localhost:8080/counter/';
+axios.defaults.baseURL = 'http://localhost:3000';
 
 //设置axios共同Content-Type
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 //共通URL定义
 const commonUrl = {
-  getFileIdList: '/filelist/getList',
-  updatListData: '/filelist/updateList'
+  getFileIdList: '/counter/filelist/getList',
+  updatListData: '/counter/filelist/updateList'
 }
 
 //挂载时通过axios初始化hottable的数据
@@ -91,6 +92,15 @@ const submitData = () => {
   console.log(postData);
   axios.post(commonUrl.updatListData, postData).then(res => {
     console.log(res.data);
+  });
+};
+
+//从redmineRestAPI获取数据
+const getDataFromRedmine = () => {
+  axios.get('/redmineapi/projects/redmine/issues.json?set_filter=1&tracker_id=3').then(res => {
+    const data = res.data;
+    
+    console.log(data);
   });
 };
 
