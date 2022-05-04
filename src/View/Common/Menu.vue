@@ -16,6 +16,10 @@
       <el-icon><document /></el-icon>
       <template #title>document</template>
     </el-menu-item>
+    <el-menu-item index="orderlist">
+      <el-icon><document /></el-icon>
+      <template #title>OrderList</template>
+    </el-menu-item>
     <el-menu-item index="setting">
       <el-icon><setting /></el-icon>
       <template #title>setting</template>
