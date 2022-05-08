@@ -12,79 +12,67 @@ export class OrderInfo {
 export let targetMonth = new Array<Date>();
 
 //所有Order里最早的开始月
-let minMonth: Date = new Date('2000-01-01');
+let minMonth: Date = new Date('2022-01-01');
 //所有Order里最晚的会计结束月
-let maxMonth: Date = new Date('2000-01-01');
+let maxMonth: Date = new Date('2022-01-01');
 
-export function getOrderList(): Array<OrderInfo> {
+export function getOrderList(excelData:any): Array<OrderInfo> {
     let orderList: Array<OrderInfo> = new Array<OrderInfo>();
     
-
     //从excel中获取数据
-    let data = getOrderListFromExcel();
+    let data = getOrderListFromExcel(excelData);
     
     //循环追加订单信息
     for (let i = 0; i < data.length; i++) {
 
         let orderInfo: OrderInfo = data[i];
-        // let orderInfo: OrderInfo = new OrderInfo();
-        // orderInfo.id = "订单号" + i;
-        // orderInfo.name = "order"+i;
 
-        // //追加orderDate的月
-        // orderInfo.orderDate = new Date("2020-"+i+"-01");
-        // orderInfo.inviceEndDate = new Date("2020-"+(i+1)+"-01");
-        // orderInfo.accountingEndDate = new Date("2020-"+(i+1)+"-01");
-        // orderInfo.orderDetail = "orderDetail" + i;
+        orderInfo.orderDate.setDate(orderInfo.orderDate.getDate() + 1);
+        orderInfo.accountingEndDate.setDate(orderInfo.accountingEndDate.getDate() + 1);
+        orderInfo.inviceEndDate.setDate(orderInfo.inviceEndDate.getDate() + 1);
 
         if(minMonth > orderInfo.orderDate) {
-            minMonth=orderInfo.orderDate;
+            minMonth = orderInfo.orderDate;
         }
 
         if(maxMonth < orderInfo.accountingEndDate) {
             maxMonth = orderInfo.accountingEndDate;
         }
-
-        //orderList.push(orderInfo);
     }
 
     targetMonth.splice(0,targetMonth.length);
 
     //计算minMonth和maxMonth之间的月份
-    targetMonth.push(minMonth);
     let newDate = new Date(minMonth);
 
-    while(newDate < maxMonth) {
+    while(newDate <= maxMonth) {
 
-        newDate.setMonth(newDate.getMonth() + 1);
         targetMonth.push(new Date(newDate));
+        newDate.setMonth(newDate.getMonth() + 1);
     }
 
     return data;
 }
 
 //读取exce返回orderList
-function getOrderListFromExcel(): Array<OrderInfo> {
+function getOrderListFromExcel(excelData:any): Array<OrderInfo> {
     let orderList: Array<OrderInfo> = new Array<OrderInfo>();
 
     //打开Excel文件
-    let workbook = XLSX.readFile('/Users/fengyingjie/develop/workspace/vscode/dashboard/OrderList.xlsx');
-
+    let workbook = XLSX.read(excelData,
+    {   
+        type: 'binary',
+        cellDates: true,
+        //设定日期格式为'yyyy/mm/dd'
+        dateNF: 'yyyy/mm/dd'
+    });
     //读取sheet1的数据
     let sheet1 = workbook.Sheets['Sheet1'] as XLSX.WorkSheet;
 
-    //从sheet1循环追加订单信息
-    for (let i = 2; i <= sheet1['!ref=A1:A20'].e.r; i++) {
-        let orderInfo: OrderInfo = new OrderInfo();
-        orderInfo.id = sheet1['A' + i].v;
-        orderInfo.name = sheet1['B' + i].v;
-        orderInfo.orderDate = new Date(sheet1['C' + i].v);
-        orderInfo.inviceEndDate = new Date(sheet1['D' + i].v);
-        orderInfo.accountingEndDate = new Date(sheet1['E' + i].v);
-        orderInfo.orderDetail = sheet1['F' + i].v;
-        orderList.push(orderInfo);
-    }
+    //取得sheet1的行数
+    let rows: OrderInfo[] = XLSX.utils.sheet_to_json(sheet1,
+        {header:["id","name","orderDate","inviceEndDate","accountingEndDate","orderDetail"]});
 
-    return orderList;
+    return orderList.concat(rows);
 }
 
