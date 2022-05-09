@@ -3,6 +3,7 @@ import FileIdList from "./View/FileIdList/FileIdList.vue";
 import Setting from "./View/Setting/Setting.vue";
 import Top from "./View/Top.vue";
 import Graph from './View/Graph.vue';
+import OrderList from './View/OrderList/OrderList.vue';
 
 // 2. 定义一些路由
 // 每个路由都需要映射到一个组件。
@@ -10,6 +11,7 @@ import Graph from './View/Graph.vue';
 const routes = [
     { path: '/graph', component: Graph },
     { path: '/filelist', component: FileIdList },
+    { path: '/orderlist', component: OrderList },
     { path: '/setting', component: Setting },
 ];
   

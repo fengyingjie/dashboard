@@ -8,6 +8,7 @@
 import { ref, onMounted} from 'vue'
 //引入echats包
 import * as echarts from 'echarts';
+import {getDataFromServer} from '../../../Model/data';
 
 const echartDom : any = ref(HTMLElement);
 
@@ -25,29 +26,39 @@ onMounted(()=>{
 
     //初始化echarts实例
     const myChart = echarts.init(echartDom.value);
-    //设置配置项
-    const option = {
 
-        title: {
-            text: props.title
-        },
+    let sourcedata = getDataFromServer('ss');
 
-        tooltip: {},
-        legend: {
-            data:['销量']
-        },
-        xAxis: {
-            data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
-        },
-        yAxis: {},
-        series: [{
-            name: '销量',
-            type: 'bar',
-            data: [5, 20, 36, 10, 10, 20]
-        }]
-    };
-    //使用配置项渲染图表
-    option && myChart.setOption(option);
+    sourcedata.then(data=>{
+        console.log(data);
+
+
+        let option = {
+            legend: {},
+            tooltip: {},
+            dataset: {
+
+                source: data
+                // 提供一份数据。
+                // source: [
+                // ['product', '2015', '2016', '2017'],
+                // ['Matcha Latte', 43.3, 85.8, 93.7],
+                // ['Milk Tea', 83.1, 73.4, 55.1],
+                // ['Cheese Cocoa', 86.4, 65.2, 82.5],
+                // ['Walnut Brownie', 72.4, 53.9, 39.1]
+                // ]
+            },
+            // 声明一个 X 轴，类目轴（category）。默认情况下，类目轴对应到 dataset 第一列。
+            xAxis: { type: 'category' },
+            // 声明一个 Y 轴，数值轴。
+            yAxis: {},
+            // 声明多个 bar 系列，默认情况下，每个系列会自动对应到 dataset 的每一列。
+            series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }]
+            };
+        //使用配置项渲染图表
+        option && myChart.setOption(option);
+
+    });
 })
 
 
