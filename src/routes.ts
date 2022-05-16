@@ -4,15 +4,18 @@ import Setting from "./View/Setting/Setting.vue";
 import Top from "./View/Top.vue";
 import Graph from './View/Graph.vue';
 import OrderList from './View/OrderList/OrderList.vue';
+import JinDu from './View/JinDu/JinDu.vue';
 
 // 2. 定义一些路由
 // 每个路由都需要映射到一个组件。
 // 我们后面再讨论嵌套路由。
 const routes = [
+    { path: '/', component: JinDu },
     { path: '/graph', component: Graph },
     { path: '/filelist', component: FileIdList },
     { path: '/orderlist', component: OrderList },
     { path: '/setting', component: Setting },
+    { path: '/jindu', component: JinDu },
 ];
   
 // 3. 创建路由实例并传递 `routes` 配置
