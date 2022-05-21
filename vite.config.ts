@@ -23,6 +23,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/counter/, '')
       },
+      "/baidu": {
+        target: "https://www.baidu.com/",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/baidu/, '')
+      },
     },
   },
 })
