@@ -1,3 +1,6 @@
+//{"Total":0,"Data":[{"Currency":"ＪＰＹ","ManHour":"5200000","OutSource":"0","Total":"5200000","ManMonth":"3.5","OutSourceMonth":"12.5","TotalMonth":"16.0","LabourCost":"58500.0","OutSourceCost":"187000.0","OutSource2":"0.0","OverallCostRatio":"77.90","ManHourCostRatio":"77.90","KousuuriageJPY":5200000,"KousuuriageRMB":315152,"KousuuriageUSD":0,"KousugaiuriageJPY":0,"KousugaiuriageRMB":0,"KousugaiuriageUSD":0,"CurrencyCode":"02","IsEntire":0}],"Tag":1,"Message":null,"Description":null}
+
+
 import cheerio from 'cheerio';
 import axios, { AxiosRequestHeaders } from 'axios';
 import { number } from 'echarts';
@@ -8,35 +11,6 @@ export class PlanInfo {
     public id: string = "";
     public name: string = "";
     public workHour: number = 0.0;
-};
-
-let passResult = {
-    "Total":0,
-    "Data":[
-        {
-            "Currency":"ＪＰＹ",
-            "ManHour":"5200000",
-            "OutSource":"0",
-            "Total":"5200000",
-            "ManMonth":"3.5",
-            "OutSourceMonth":"12.5",
-            "TotalMonth":"16.0",
-            "LabourCost":"58500.0",
-            "OutSourceCost":"187000.0",
-            "OutSource2":"0.0",
-            "OverallCostRatio":"77.90",
-            "ManHourCostRatio":"77.90",
-            "KousuuriageJPY":5200000,
-            "KousuuriageRMB":315152,
-            "KousuuriageUSD":0,
-            "KousugaiuriageJPY":0,
-            "KousugaiuriageRMB":0,
-            "KousugaiuriageUSD":0,
-            "CurrencyCode":"02",
-            "IsEntire":0}],
-    "Tag":1,
-    "Message":null,
-    "Description":null
 };
 
 export function getPlanInfo(id:string) : PlanInfo{
@@ -97,10 +71,10 @@ export function getPlanInfoList(){
     // });
     
     
-    // axios.get('/sap/sap(cz1TSUQlM2FBTk9OJTNhY2lwZWNfUEVDXzMyJTNhQVFNeWNFU1N5bHUxaUNVX1FQNDZZUUN4MGlPOWdMZmkzcnlHbE5mNC1BVFQ=)/bc/gui/sap/its/webgui/batch/json?~RG_WEBGUI=X&~SEC_SESSTOKEN=B5CE5F4EBCFD3654',{
-    //              withCredentials: true,
-    //              headers: fxsHeader }).then(res =>{
+    axios.get('/sap/sap(cz1TSUQlM2FBTk9OJTNhY2lwZWNfUEVDXzMyJTNhQVFNeWNFU1N5bHUxaUNVX1FQNDZZUUN4MGlPOWdMZmkzcnlHbE5mNC1BVFQ=)/bc/gui/sap/its/webgui/batch/json?~RG_WEBGUI=X&~SEC_SESSTOKEN=B5CE5F4EBCFD3654',{
+                 withCredentials: true,
+                 headers: fxsHeader }).then(res =>{
     
-    //    console.log(res.data);
-    // });
+       console.log(res.data);
+    });
 }
