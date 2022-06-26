@@ -15,12 +15,14 @@
     "echarts": "^5.3.2",
     "element-plus": "^2.1.9",
     "handsontable": "^11.1.0",
+    "moment-business": "^3.0.1",
     "vue": "^3.2.25",
     "vue-router": "^4.0.14",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/crawler": "^1.2.2",
+    "@types/moment-business": "^0.1.4",
     "@vitejs/plugin-vue": "^2.3.0",
     "typescript": "^4.5.4",
     "util": "^0.12.4",
