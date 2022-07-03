@@ -31,7 +31,7 @@ onMounted(()=>{
     //sourcedata.then((data  : any) =>{
         let option : echarts.EChartsOption = {
             grid: {left: '3%',right: '7%',bottom: '12%',containLabel: true},
-            toolbox: {feature: { dataZoom: {},brush: {type: ['rect', 'polygon', 'clear']}}},
+            //toolbox: {feature: { dataZoom: {},brush: {type: ['rect', 'polygon', 'clear']}}},
             dataZoom: [{type: 'slider',start: 0,end: 100}],
             xAxis: [
                 {

@@ -77,6 +77,20 @@ export class DateUtil {
         return ret;
     } 
 
+    /**
+    * 比较start的日期是不是base以前(start=<base)的日期
+    */
+    public static isPassedDay(start:string, base:string) : boolean {
+
+        let today : Date;
+        if(base === undefined || base === ''){
+            today = new Date(new Date(Date.now()).toDateString());
+        }else{
+            today = new Date(base);
+        }
+        return new Date(new Date(start).toDateString()) <= today;
+    }
+
     public static format(date:Date, fmt:string):string{
         let o:any = {
             "M+" : date.getMonth()+1,                 //月份

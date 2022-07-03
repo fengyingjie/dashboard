@@ -1,0 +1,225 @@
+<template>
+    <HotTable :licenseKey="hotSetting.licenseKey" ref="DelayInHourTableComp"></HotTable>
+</template>
+
+<script setup lang="ts">
+import { HotTable,HotColumn } from '@handsontable/vue3';
+import Handsontable from 'handsontable/base';
+import { registerAllModules } from 'handsontable/registry';
+import { onMounted, ref, watch, reactive, getCurrentInstance } from 'vue';
+import { getPenddingQAByID, getSSItems, getPTDOCItems, getPGItems, getPTItems, 
+         SS_items, PTDOC_items, PG_items, PT_items, getWBSDatabyPhase, initDataUpdateFlag } from '../../Model/data';
+import { DateUtil, getKind } from '../../Model/Common';
+//import { GridSettings } from 'handsontable/settings';
+
+//定义props变量
+const props = defineProps({
+    phase: { type:String,default: 'SS',required: true },
+    inputDate: { type:String,default: new Date(Date.now()).toDateString() ,required: false },
+    lot: { type:String,default: '',required: false },
+});
+
+// register Handsontable's modules
+registerAllModules();
+
+//hotTable控件
+const DelayInHourTableComp = ref();
+
+const hotSetting = {
+  licenseKey : 'non-commercial-and-evaluation',
+  colWidths: 60,
+  height: 'auto',
+  comments: true,
+  manualColumnResize: true,
+  columnSorting: {
+    sortEmptyCells: true,
+    initialConfig: {
+      column: 2,
+      sortOrder: 'asc'
+    }
+  },
+  nestedHeaders : [
+    ['ID','名称','カテゴリ','状態',{label:'作成', colspan:5},{label:'レビュー', colspan:5},'備考'],
+    ['ID','名称','カテゴリ','状態','目標','記入','予定','実績','前倒/遅延','目標','記入','予定','実績','前倒/遅延','備考']
+  ],
+};
+
+let wbs_items:Array<any>;
+
+//挂载时通过axios初始化hottable的数据
+onMounted(() => {
+  
+  //updateData();
+
+  getWBSDatabyPhase(props.phase).then(
+  (res)=>{
+    wbs_items = res; 
+    let newDate = props.inputDate;
+    if(props.inputDate === undefined){
+      newDate = new Date(Date.now()).toDateString();
+    }
+    updateData();
+  });
+});
+
+watch(
+  () => props.inputDate,
+  (val) => {
+    updateData();
+  }
+);
+
+// //从redmineRestAPI获取数据
+// const updateData = async () => {
+//   let items = new Array();
+//   let hotData = new Array<any>();
+//   let comments = [
+//     {category: '画面',value:['','','','']},
+//     {category: 'バッチ',value:['','','','']},
+//     {category: 'IF',value:['','','','']},
+//   ];
+//   switch(props.phase){
+//       case 'PTDOC': {
+//           await getPTDOCItems();
+//           items = PTDOC_items;
+//           break;
+//       }
+//       case 'PG':{
+//           await getPGItems();
+//           items = PG_items;
+//           break;
+//       }
+//       case 'PT':{
+//           await getPTItems();
+//           items = PT_items;
+//           break;
+//       }
+//       default : {
+//           await getSSItems();
+//           items = SS_items;
+//           break;
+//       }
+//   }
+//   computeDelayHour(items,hotData);
+//   hotSetting.data = hotData;
+//   //更新hotTable
+//   DelayInHourTableComp.value.hotInstance.updateSettings(hotSetting);
+// };
+
+//从redmineRestAPI获取数据
+function updateData(){
+
+  let hotData = new Array<any>();
+
+  computeDelayHour(wbs_items,hotData);
+  hotSetting.data = hotData;
+
+  //更新hotTable
+  DelayInHourTableComp.value.hotInstance.updateSettings(hotSetting);
+
+};
+
+function computeDelayHour(items: any[],hotData :any[]){
+
+  items.forEach(item=>{
+
+    //作業没有完了的对象 開始日(実績)计入过的
+    if( (DateUtil.isPassedDay(item.start_date,props.inputDate)||item.custom_fields[33].value !=='') && item.custom_fields[42].value ===''){
+
+      //计入進捗率
+      let writedrate:number = parseFloat(item.custom_fields[37].value)/100.0;
+      let reviewrate:number = parseFloat(item.custom_fields[41].value)/100.0;
+      let writetargetrate:number = 0.0;
+      let reviewtargetrate:number = 0.0;
+      let meisai = { id:'',category: '',name: '',status:'',writetargetrate:'',writedrate:'',createTime1:0,createTime2:0,createTime3:0,reviewtargetrate:'',reviewdrate:'',reviewTime1:0,reviewTime2:0,reviewTime3:0,message:''};
+
+      meisai.id = item.custom_fields[9].value;
+      meisai.name = item.custom_fields[13].value;
+      meisai.category = item.custom_fields[11].value;
+      meisai.status = item.status.name;
+      meisai.writedrate=item.custom_fields[37].value;
+      meisai.reviewdrate=item.custom_fields[41].value;  
+      
+      //J1理解時間(予定) + 作業時間(予定)
+      meisai.createTime1 = item.custom_fields[23].value/1 + item.custom_fields[26].value/1;
+      //内部ﾚﾋﾞｭｰ時間(予定)
+      meisai.reviewTime1 = item.custom_fields[29].value/1;
+
+      //J1理解時間(実績) + 作業時間(実績)
+      meisai.createTime2 = item.custom_fields[35].value/1 + item.custom_fields[39].value/1;
+
+      //内部ﾚﾋﾞｭｰ時間(実績)
+      meisai.reviewTime2 = item.custom_fields[43].value/1;
+
+      //作业实际终了未计入
+      if(1==1){//(item.custom_fields[38].value === ''){
+        
+        //作業期间消化率 =（现在-预定开始）/（预定终了-预定开始）
+        let today = new Date(new Date(props.inputDate).toDateString());
+        let start = new Date(new Date(item.start_date).toDateString());
+        let end = new Date(new Date(item.custom_fields[25].value).toDateString());
+
+        let dateCom : DateUtil = new DateUtil();
+        let rate:number = (dateCom.getWorkingDays(start,today)/dateCom.getWorkingDays(start,end))/1.0;
+        rate = rate > 1 ? 1:rate;
+        rate = rate < 0 ? 0:rate;
+        writetargetrate = rate;
+  
+        meisai.createTime3 = (rate - writedrate) * meisai.createTime1;
+        meisai.createTime3 = new Number(meisai.createTime3.toFixed(1)).valueOf();
+
+      }
+
+      //内部ﾚﾋﾞｭｰ開始日(予定)已过的场合
+      if(1==1){//(isPassedDay(item.custom_fields[27].value)){
+
+        //作業期间消化率 =（现在-预定开始）/（预定终了-预定开始）
+        let today = new Date(new Date(props.inputDate).toDateString());
+        let start = new Date(new Date(item.custom_fields[27].value).toDateString());
+        let end = new Date(new Date(item.custom_fields[28].value).toDateString());
+
+        let dateCom : DateUtil = new DateUtil();
+        let rate:number = (dateCom.getWorkingDays(start,today)/dateCom.getWorkingDays(start,end))/1.0;
+        rate = rate > 1 ? 1:rate;
+        rate = rate < 0 ? 0:rate;
+        reviewtargetrate = rate;
+        
+        meisai.reviewTime3 = (rate - reviewrate) * meisai.reviewTime1;
+        meisai.reviewTime3 = new Number(meisai.reviewTime3.toFixed(1)).valueOf();
+        
+      }
+
+      //进度计入了100%但是完了日没有计入,完了日已经计入但是进度未到100%
+      if(
+        (item.custom_fields[37].value === '100%' && item.custom_fields[38].value === '')
+        ||(item.custom_fields[37].value != '100%' && item.custom_fields[38].value != '')){
+          meisai.message = meisai.message + '进度率和作业完了实际日的计入矛盾。\r\n';
+      }
+
+      //进度率与作业开始实际日矛盾
+      if(
+        (item.custom_fields[37].value === '' && item.custom_fields[33].value != '')
+        ||(item.custom_fields[37].value === '0%' && item.custom_fields[33].value != '')){
+          meisai.message = meisai.message + '进度率与作业开始实际日矛盾。\r\n';
+      }
+
+      //作业实际完了日与内部Review实际开始日矛盾
+      if(
+        (item.custom_fields[38].value === '' && item.custom_fields[40].value != '')){
+          meisai.message = meisai.message + '作业实际完了日与内部Review实际开始日矛盾。\r\n';
+      }
+
+      meisai.writetargetrate=(writetargetrate*100).toFixed(0) + '%';
+      meisai.reviewtargetrate=(reviewtargetrate*100).toFixed(0) + '%';
+      hotData.push(meisai);
+    }
+    
+  });
+
+  hotSetting.cell = [];
+}
+</script>
+
+<style src="handsontable/dist/handsontable.full.css">
+
+</style>

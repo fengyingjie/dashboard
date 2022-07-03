@@ -1,5 +1,16 @@
 <template>
   <el-row>
+    <el-col :span="24">
+      <div class="grid-content bg-purple" >
+        <div>
+            <CategoryXY title="生産性目標と実績" url="line1" width="400px" height="400px"></CategoryXY>
+            <ValueXY title="Bar example" url="value1" width="500px" height="400px"></ValueXY>
+            <CategoryXY title="Bar example" url="bar1" width="100%" height="200px"></CategoryXY>
+        </div>
+      </div>
+    </el-col>
+  </el-row>
+  <el-row>
     <el-col :span="8">
       <input type="file" @change="readOrderFile" ref="orderListFile"/>
       <input type="file" @change="readSAPFile" ref="SAPFile"/>
@@ -18,7 +29,6 @@
       </div>
     </el-col>
   </el-row>
-
 </template>
 
 <script setup lang="ts">
@@ -26,10 +36,14 @@ import { HotTable,HotColumn } from '@handsontable/vue3';
 import Handsontable from 'handsontable/base';
 import { registerAllModules } from 'handsontable/registry';
 import axios from 'axios';
+import CategoryXY from '../Common/Graph/CategoryXY.vue';
+import SpeedChange from '../Common/Graph/SpeedChange.vue';
+import ValueXY from '../Common/Graph/ValueXY.vue';
 import { onMounted, ref, reactive, getCurrentInstance } from 'vue';
 import { OrderInfo,getOrderList,targetMonth } from '../../Model/OrderInfo';
 import { SAPInfo,getSAPList,getWorkHour } from '../../Model/SAPInfo';
 import { getPlanInfoList } from '../../Model/PlanInfo';
+import {getSSItems, getPGItems, SS_items} from '../../Model/data';
 
 // register Handsontable's modules
 registerAllModules();

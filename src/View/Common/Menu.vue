@@ -8,13 +8,13 @@
     @close="handleClose"
     @select="handleSelect"
   >
-    <el-menu-item index="/graph">
+    <el-menu-item index="graph">
       <el-icon><icon-menu /></el-icon>
       <template #title>menu</template>
     </el-menu-item>
-    <el-menu-item index="filelist">
+    <el-menu-item index="delayList">
       <el-icon><document /></el-icon>
-      <template #title>document</template>
+      <template #title>DelayList</template>
     </el-menu-item>
     <el-menu-item index="orderlist">
       <el-icon><document /></el-icon>

@@ -83,18 +83,6 @@ async function getSSItems(){
     SS_count = 0;
     let url = '/issues.json?project_id=8&query_id=176&limit=100';
 
-    // await axios.get(url).then(res => {
-    // SS_count = res.data.total_count;
-    // SS_items = SS_items.concat(res.data.issues);
-    // });
-      
-    // while(SS_items.length < SS_count){
-    //     await axios.get(url + '&offset=' + SS_items.length).then(res => {
-    //         SS_count = res.data.total_count;
-    //         SS_items = SS_items.concat(res.data.issues);
-    //     }); 
-    // }
-
     await getTaskDataFromRedmine(url).then(res => {
         SS_count = res.count;
         SS_items = res.items;
@@ -110,18 +98,6 @@ async function getPGItems(){
     PG_items = new Array<any>();
     PG_count = 0;
     let url = '/issues.json?project_id=8&query_id=165&limit=100';
-
-    // await axios.get(url).then(res => {
-    // PG_count = res.data.total_count;
-    // PG_items = PG_items.concat(res.data.issues);
-    // });
-      
-    // while(PG_items.length < PG_count){
-    //     await axios.get(url + '&offset=' + PG_items.length).then(res => {
-    //         PG_count = res.data.total_count;
-    //         PG_items = PG_items.concat(res.data.issues);
-    //     }); 
-    // }
     
     await getTaskDataFromRedmine(url).then(res => {
         PG_count = res.count;
@@ -129,6 +105,52 @@ async function getPGItems(){
     });
 
     PGdateUpdated = true;
+}
+
+async function getWBSDatabyPhase(phase:string) : Array<any> {
+
+    let items = new Array();
+
+    switch(phase){
+        case 'PTDOC': {
+            await getPTDOCItems();
+            items = PTDOC_items;
+            break;
+        }
+        case 'PG':{
+            await getPGItems();
+            items = PG_items;
+            break;
+        }
+        case 'PT':{
+            await getPTItems();
+            items = PT_items;
+            break;
+        }
+        case 'SS' : {
+            await getSSItems();
+            items = SS_items;
+            break;
+        }
+        case 'ALL' : {
+
+            await getSSItems();
+            items = items.concat(SS_items);
+            await getPGItems();
+            items = items.concat(PG_items);
+            await getPTDOCItems();
+            items = items.concat(PTDOC_items);
+            await getPTItems();
+            items = items.concat(PT_items);
+            break;
+        }
+        default : {
+            await getSSItems();
+            items = SS_items;
+            break;
+        }
+    }
+    return items;
 }
 
 async function getQAItems(){
@@ -168,8 +190,61 @@ function getPenddingQAByID(id:string):String{
 }
 
 async function getDataFromServer(url: string) {
-    //let response = await axios.get(url);
-    // return response.data;
+
+    let parm = url.split('&');
+    let type = '';
+    let phase = '';
+    let lot = '';
+    let items = new Array<any>();
+    let item_count = 0;
+    let stday =''
+    let endday = '';
+
+    parm.forEach((value)=>{
+        let item = value.split('=');
+        if(item[0] === 'type'){
+            type = item[1];
+        }
+        if(item[0] === 'phase'){
+            phase = item[1];
+        }
+        if(item[0] === 'lot'){
+            lot = item[1];
+        }
+        if(item[0] === 'stday'){
+            stday = item[1];
+        }
+        if(item[0] === 'endday'){
+            endday = item[1];
+        }
+    });
+
+    switch(phase){
+        case 'PTDOC': {
+            items = items.concat(PTDOC_items);
+            break;
+        }
+        case 'PG':{
+            items = items.concat(PG_items);
+            break;
+        }
+        case 'PT':{
+            items = items.concat(PT_items);
+            break;
+        }
+        case 'SS' : {
+            items = items.concat(SS_items);
+            break;
+        }
+        case 'ALL' : {
+
+            items = items.concat(SS_items);
+            items = items.concat(PG_items);
+            items = items.concat(PTDOC_items);
+            items = items.concat(PT_items);
+            break;
+        }
+    };
 
     return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -264,38 +339,42 @@ async function getDataFromServer(url: string) {
                 ];
             }
             
-            if(url === 'BurnDown1'){
-
+            if(type === 'BDCount'){
                 let map1 = new Map<string,number>();
                 let map2 = new Map<string,number>();
-                SS_items.forEach(item => {
+                
+                items.forEach(item => {
 
-                    //内部ﾚﾋﾞｭｰ終了日(予定)
-                    let day = item.custom_fields[28].value;
-                    let count = map1.get(day);
-                    if(count === undefined){
-                        map1.set(day,1);
-                    }else{
-                        map1.set(day,(count as number)+1);
-                    }
-                    
-                    //内部ﾚﾋﾞｭｰ終了日(実績)
-                    day = item.custom_fields[42].value;
-                    count = map2.get(day);
-                    if(count === undefined){
-                        map2.set(day,1);
-                    }else{
-                        map2.set(day,(count as number)+1);
+                    if(lot === '' || item.custom_fields[52].value === lot){
+                        item_count++;
+                        //内部ﾚﾋﾞｭｰ終了日(予定)
+                        let day = item.custom_fields[28].value;
+                        let count = map1.get(day);
+                        if(count === undefined){
+                            map1.set(day,1);
+                        }else{
+                            map1.set(day,(count as number)+1);
+                        }
+                        
+                        //内部ﾚﾋﾞｭｰ終了日(実績)
+                        day = item.custom_fields[42].value;
+                        count = map2.get(day);
+                        if(count === undefined){
+                            map2.set(day,1);
+                        }else{
+                            map2.set(day,(count as number)+1);
+                        }
                     }
                 });
                 
                 let dataUtil = new DateUtil();
-                let date1: [[string,number]] = [['',SS_count]];
-                let date2: [[string,number]] = [['',SS_count]];
-                let count1 = SS_count;
-                let count2 = SS_count;
+                let date1: [[string,number]] = [['',item_count]];
+                let date2: [[string,number]] = [['',item_count]];
+                let count1 = item_count;
+                let count2 = item_count;
 
-                dataUtil.getDaysList(new Date('2022-05-01'),new Date('2022-09-30'),'yyyy-MM-dd').forEach((value)=>{
+                dataUtil.getDaysList(new Date(stday),new Date(endday),'yyyy-MM-dd').forEach((value)=>{
+                //dataUtil.getDaysList(new Date('2022-04-01'),new Date('2022-10-30'),'yyyy-MM-dd').forEach((value)=>{
                     
                     count1 = count1 - (map1.get(value) === undefined ? 0 : map1.get(value));
                     count2 = count2 - (map2.get(value) === undefined ? 0 : map2.get(value));
@@ -307,11 +386,78 @@ async function getDataFromServer(url: string) {
                     { name: '実績', type: 'line', data: date2 }
                 ];
             }
+            if(type === 'BDTime'){
+                
+                let totalTime1 = 0;
+                let totalTime2 = 0;
+
+                items.forEach(item => {
+
+                    if(lot === '' || item.custom_fields[52].value === lot){
+                        
+                        //J1理解预定时间
+                        totalTime1 = totalTime1 + item.custom_fields[23].value/1;
+                        //做成预定时间
+                        totalTime1 = totalTime1 + item.custom_fields[26].value/1;
+                        //内部Reivew预定时间
+                        totalTime1 = totalTime1 + item.custom_fields[29].value/1;
+
+                        //作业实际完了日如果计入了，就按预定时间的100%计算
+                        if(item.custom_fields[38].value != ''){
+
+                            totalTime2 = totalTime2 + item.custom_fields[23].value/1 + item.custom_fields[26].value/1;
+                        }else{
+
+                            //作业实际完了日如果未计入，就按预定时间的进度率计算
+                            let time = item.custom_fields[23].value/1 + item.custom_fields[26].value/1;
+                            
+                            //计入進捗率
+                            let writedrate:number = 0.0;
+                            if(item.custom_fields[37].value === ''){
+
+                            }else{
+                                writedrate = parseFloat(item.custom_fields[37].value)/100.0;
+                            }
+                            
+                            totalTime2 = totalTime2 + time * writedrate;
+
+                            let reviewrate:number = parseFloat(item.custom_fields[41].value)/100.0;
+
+                        }
+                        //Review实际完了日如果计入了，就按预定时间的100%计算
+                        if(item.custom_fields[42].value != ''){
+
+                            totalTime2 = totalTime2 + item.custom_fields[29].value/1;
+                        }else{
+                            
+                            //作业实际完了日如果未计入，就按预定时间的进度率计算
+                            let time = item.custom_fields[29].value/1;
+                            
+                            //计入進捗率
+                            let reviewedrate:number = 0.0;
+                            if(item.custom_fields[41].value === ''){
+
+                            }else{
+                                reviewedrate = parseFloat(item.custom_fields[41].value)/100.0;
+                            }
+
+                            totalTime2 = totalTime2 + time * reviewedrate;
+
+                        }
+                    }
+                });
+                
+                series = [
+                    { name: '予定', type: 'line', data: totalTime1},
+                    { name: '実績', type: 'line', data: totalTime2}
+                ];
+            }
             resolve({ source, series });
         }, 1000);
     });
 
 }
+
 function initDataUpdateFlag(){
     SSdateUpdated = false;
     PGdateUpdated = false;
@@ -326,6 +472,7 @@ export {
     PT_items,PT_count,
     QA_items,QA_count,
     getPenddingQAByID,
+    getWBSDatabyPhase,
     getSSItems,
     getPTDOCItems,
     getPTItems,
