@@ -10,9 +10,9 @@ import { onMounted, ref, computed, methods, mounted, reactive, getCurrentInstanc
 import { getPenddingQAByID, getSSItems, getPTDOCItems, getPGItems, getPTItems, 
          SS_items, PTDOC_items, PG_items, PT_items, getWBSDatabyPhase, initDataUpdateFlag } from '../../Model/data';
 import { DateUtil, getKind } from '../../Model/Common';
-import { GridSettings } from 'handsontable/settings';
+//import { GridSettings } from 'handsontable/settings';
 
-const hotSetting : GridSettings = {
+const hotSetting = {
   licenseKey : 'non-commercial-and-evaluation',
   colWidths: 60,
   height: 'auto',

@@ -22,15 +22,12 @@ const count = ref(0)
   <!-- 路由匹配到的组件将渲染在这里 -->
 
   <div class="common-layout">
-<!--    <el-container> -->
-<!--      <el-header>Header</el-header> -->
+    <el-header><div><h1>Hope推進状況「{{new Date().toDateString()}}現在」</h1></div></el-header>  
       <el-container>
         <el-aside width="70px"><Menu></Menu></el-aside>
         <el-main><router-view></router-view></el-main>
       </el-container>
-<!--    </el-container> -->
   </div>
-
 </template>
 
 <style scoped>

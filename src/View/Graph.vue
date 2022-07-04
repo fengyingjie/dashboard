@@ -29,8 +29,9 @@
   <el-row>
     <el-col :span="6">
       <div class="grid-content bg-purple" >
-        <YiPiaoPanChart title="Lot1進捗率" url="type=BDTime&phase=ALL&lot=1&stday=2022-04-01&endday=2022-11-30" width="400px" height="200px"></YiPiaoPanChart>
-        <YiPiaoPanChart title="Lot2進捗率" url="type=BDTime&phase=ALL&lot=2&stday=2022-04-01&endday=2022-11-30" width="400px" height="200px"></YiPiaoPanChart>
+        <a href="http://10.167.23.14/hpe-web-1.0.0/" target="view_window">動産環境</a>
+        <YiPiaoPanChart title="Lot1進捗率" url="type=BDTime&phase=ALL&lot=1&stday=2022-04-01&endday=2022-11-30" width="400px" height="180px"></YiPiaoPanChart>
+        <YiPiaoPanChart title="Lot2進捗率" url="type=BDTime&phase=ALL&lot=2&stday=2022-04-01&endday=2022-11-30" width="400px" height="180px"></YiPiaoPanChart>
       </div>
     </el-col>
     <el-col :span="6">

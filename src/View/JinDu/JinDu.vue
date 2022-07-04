@@ -54,7 +54,7 @@ import axios from 'axios';
 import { onMounted, ref, computed, reactive, getCurrentInstance } from 'vue';
 import { getPenddingQAByID, getQAItems, getSSItems, getPGItems, QA_count, QA_items, SS_items, PG_items, initDataUpdateFlag } from '../../Model/data';
 import { DateUtil, getKind } from '../../Model/Common';
-import { GridSettings } from 'handsontable/settings';
+//import { GridSettings } from 'handsontable/settings';
 import TaskCountTable from './TaskCountTable.vue'
 
 
@@ -65,7 +65,7 @@ let delayComment = '';
 let delayCount = 0;
 //const inputDate = ref();
 
-const hotSetting : GridSettings = {
+const hotSetting = {
   licenseKey : 'non-commercial-and-evaluation',
   colWidths: 60,
   height: 'auto',
