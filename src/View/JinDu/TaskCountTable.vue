@@ -1,5 +1,5 @@
 <template>
-    <HotTable :licenseKey="licenseKey" ref="CountTableComp"></HotTable>
+    <HotTable :licenseKey="licenseKey" ref="CountTableComp" width=800></HotTable>
 </template>
 
 <script lang="ts">
@@ -14,7 +14,7 @@ import { DateUtil, getKind } from '../../Model/Common';
 
 const hotSetting = {
   licenseKey : 'non-commercial-and-evaluation',
-  colWidths: 60,
+  colWidths: [60,50,50,50,50,50,50,50,50,50,50,50,50,50],
   height: 'auto',
   comments: true,
   manualColumnResize: true,
@@ -97,89 +97,90 @@ export default{
           this.hotData[index].total++;
 
           //预定开始
-          if( DateUtil.isPassedDay(item.start_date,this.$props.inputDate) ){
+          if( item.start_date.value !="" && DateUtil.isPassedDay(item.start_date,this.$props.inputDate) ){
             this.hotData[index].fxsStart1++;
+            //console.log(item.id + item.custom_fields[7].value)
           }
 
           //实际开始
-          if( DateUtil.isPassedDay(item.custom_fields[33].value,this.$props.inputDate) ){
+          if( item.custom_fields[33].value !="" && DateUtil.isPassedDay(item.custom_fields[33].value,this.$props.inputDate) ){
             this.hotData[index].fxsStart2++;
           }
 
           //遅延
-          if( DateUtil.isPassedDay(item.start_date,this.$props.inputDate) && item.custom_fields[33].value=="" ){
+          if(isDelay(item.start_date,item.custom_fields[33].value,this.$props.inputDate)){
             this.hotData[index].fxsStart3++;
             this.comments[index].value[0]=this.comments[index].value[0] + '\r\n' + '遅延:' + item.custom_fields[9].value + ':' + item.assigned_to.name;
           }
 
           //前倒し
-          if( !DateUtil.isPassedDay(item.start_date,this.$props.inputDate) && item.custom_fields[33].value !="" ){
+          if(isBeforePlan(item.start_date,item.custom_fields[33].value,this.$props.inputDate)){
             this.hotData[index].fxsStart3--;
             this.comments[index].value[0]=this.comments[index].value[0] + '\r\n' + '前倒し:' + item.custom_fields[9].value + ':' + item.assigned_to.name;
           }
 
           //作业预定终了
-          if( DateUtil.isPassedDay(item.custom_fields[25].value,this.$props.inputDate) ){
+          if( item.custom_fields[25].value!= "" && DateUtil.isPassedDay(item.custom_fields[25].value,this.$props.inputDate) ){
               this.hotData[index].fxsEnd1++;
           }
 
           //作业实际终了
-          if( DateUtil.isPassedDay(item.custom_fields[38].value,this.$props.inputDate) ){
+          if( item.custom_fields[38].value!= "" && DateUtil.isPassedDay(item.custom_fields[38].value,this.$props.inputDate) ){
               this.hotData[index].fxsEnd2++;
           }
 
           //遅延
-          if( DateUtil.isPassedDay(item.custom_fields[25].value,this.$props.inputDate) && item.custom_fields[38].value == ""){
+          if(isDelay(item.custom_fields[25].value,item.custom_fields[38].value,this.$props.inputDate)){
             this.hotData[index].fxsEnd3++;
             this.comments[index].value[1]=this.comments[index].value[1] + '\r\n' + '遅延:' +  item.custom_fields[9].value + ':' + item.assigned_to.name + getPenddingQAByID(item.custom_fields[9].value);
           }
 
           //前倒し
-          if( !DateUtil.isPassedDay(item.custom_fields[25].value,this.$props.inputDate) && item.custom_fields[38].value != ""){
+          if(isBeforePlan(item.custom_fields[25].value,item.custom_fields[38].value,this.$props.inputDate)){
             this.hotData[index].fxsEnd3--;
             this.comments[index].value[1]=this.comments[index].value[1] + '\r\n' + '前倒し:' + item.custom_fields[9].value + ':' + item.assigned_to.name;
           }
 
           //FXSReview预定
-          if( DateUtil.isPassedDay(item.custom_fields[28].value,this.$props.inputDate)){
+          if( item.custom_fields[28].value != "" && DateUtil.isPassedDay(item.custom_fields[28].value,this.$props.inputDate)){
               this.hotData[index].fxsReview1++;
           }
 
           //FXSReview实际
-          if( DateUtil.isPassedDay(item.custom_fields[42].value,this.$props.inputDate)){
+          if( item.custom_fields[42].value != "" && DateUtil.isPassedDay(item.custom_fields[42].value,this.$props.inputDate)){
               this.hotData[index].fxsReview2++;
           }
 
           //遅延
-          if( DateUtil.isPassedDay(item.custom_fields[28].value,this.$props.inputDate) && item.custom_fields[42].value == "" ){
+          if(isDelay(item.custom_fields[28].value,item.custom_fields[42].value,this.$props.inputDate)){
             this.hotData[index].fxsReview3++;
             this.comments[index].value[2]=this.comments[index].value[2] + '\r\n' + '遅延:' + item.custom_fields[9].value + ':' + item.assigned_to.name;
           }
 
           //前倒し
-          if( !DateUtil.isPassedDay(item.custom_fields[28].value,this.$props.inputDate) && item.custom_fields[42].value != "" ){
+          if(isBeforePlan(item.custom_fields[28].value,item.custom_fields[42].value,this.$props.inputDate)){
             this.hotData[index].fxsReview3--;
             this.comments[index].value[2]=this.comments[index].value[2] + '\r\n' + '前倒し:' + item.custom_fields[9].value + ':' + item.assigned_to.name;
           }
 
           //FJReview预定
-          if( DateUtil.isPassedDay(item.custom_fields[31].value,this.$props.inputDate)){
+          if( item.custom_fields[31].value != "" && DateUtil.isPassedDay(item.custom_fields[31].value,this.$props.inputDate)){
               this.hotData[index].fj1++;
           }
 
           //FJReview实际
-          if( DateUtil.isPassedDay(item.custom_fields[45].value,this.$props.inputDate)){
+          if( item.custom_fields[45].value != "" && DateUtil.isPassedDay(item.custom_fields[45].value,this.$props.inputDate)){
               this.hotData[index].fj2++;
           }
 
           //遅延
-          if( DateUtil.isPassedDay(item.custom_fields[31].value,this.$props.inputDate) && item.custom_fields[45].value == ""){
+          if(isDelay(item.custom_fields[31].value,item.custom_fields[45].value,this.$props.inputDate)){
             this.hotData[index].fj3++;
             this.comments[index].value[3]=this.comments[index].value[3] + '\r\n' + '遅延:' + item.custom_fields[9].value + ':' + item.assigned_to.name;
           }
 
           //前倒し
-          if( !DateUtil.isPassedDay(item.custom_fields[31].value,this.$props.inputDate) && item.custom_fields[45].value != ""){
+          if(isBeforePlan(item.custom_fields[31].value,item.custom_fields[45].value,this.$props.inputDate)){
             this.hotData[index].fj3--;
             this.comments[index].value[3]=this.comments[index].value[3] + '\r\n' + '前倒し:' + item.custom_fields[9].value + ':' + item.assigned_to.name;
           }
@@ -218,6 +219,21 @@ export default{
         this.updateTable(newDate);
     });
   },
+}
+
+function isDelay(target:string,actual:string,inputDate:string) : boolean{
+
+  //预定日已过，实际日未计入或者计入的是未来时间
+  return DateUtil.isPassedDay(target,inputDate) 
+  && ( actual == "" || !DateUtil.isPassedDay(actual,inputDate));
+}
+
+function isBeforePlan(target:string,actual:string,inputDate:string) : boolean{
+
+  //预定日未到，实际日已经计入并且计入的是今天以前的日期
+  return !DateUtil.isPassedDay(target,inputDate) 
+              && actual !="" 
+              && DateUtil.isPassedDay(actual,inputDate);
 }
 
 //defineExpose({updateTable});

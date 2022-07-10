@@ -164,7 +164,6 @@ export default{
 
   computed: {
     targetDate() {
-      //this.$refs.SSTableComp.updateTable(this.$data.inputDate);
       return this.inputDate.toDateString()+"";
     }
   }

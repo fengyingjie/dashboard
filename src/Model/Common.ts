@@ -2,13 +2,13 @@ import business from 'moment-business';
 
 export function getKind(kind:string) : number {
 
-    if(kind == '画面'){
+    if(kind === '画面'){
       return 0;
     }
-    if((kind == 'バッチ')||(kind == '画面バッチ')||(kind == '帳票バッチ')){
+    if((kind === 'バッチ')||(kind === '画面バッチ')||(kind === '帳票バッチ')){
       return 1;
     }
-    if(kind == 'インターフェース'){
+    if(kind === 'インターフェース'){
       return 2;
     }
     return -1;

@@ -28,25 +28,39 @@
   </el-row>
   <el-row>
     <el-col :span="6">
+      <a href="http://10.167.23.14/hpe-web-1.0.0/" target="view_window">動産環境</a>
+    </el-col>
+    <el-col :span="18">
+     <!--
+      <el-radio-group v-model="phaseSelect" class="ml-4">
+        <el-radio label="SS">SS</el-radio>
+        <el-radio label="PG">PG</el-radio>
+        <el-radio label="PTDOC">PT仕</el-radio>
+        <el-radio label="PT">PT</el-radio>
+      </el-radio-group>
+      -->
+    </el-col>
+  </el-row>
+  <el-row>
+    <el-col :span="6">
       <div class="grid-content bg-purple" >
-        <a href="http://10.167.23.14/hpe-web-1.0.0/" target="view_window">動産環境</a>
         <YiPiaoPanChart title="Lot1進捗率" url="type=BDTime&phase=ALL&lot=1&stday=2022-04-01&endday=2022-11-30" width="400px" height="180px"></YiPiaoPanChart>
         <YiPiaoPanChart title="Lot2進捗率" url="type=BDTime&phase=ALL&lot=2&stday=2022-04-01&endday=2022-11-30" width="400px" height="180px"></YiPiaoPanChart>
       </div>
     </el-col>
     <el-col :span="6">
       <div class="grid-content bg-purple" >
-        <SpeedChange title="画面生産性推進" koutei="SS" width="500px" height="400px" type=0></SpeedChange>
+        <SpeedChange title="画面生産性推進" :phase="phaseSelect" width="500px" height="400px" type="0"></SpeedChange>
       </div>
     </el-col>
     <el-col :span="6">
       <div class="grid-content bg-purple" >
-        <SpeedChange title="バッチ生産性推進" koutei="SS" width="500px" height="400px" type=1></SpeedChange>
+        <SpeedChange title="バッチ生産性推進" :phase="phaseSelect" width="500px" height="400px" type="1"></SpeedChange>
       </div>
     </el-col>
     <el-col :span="6">
       <div class="grid-content bg-purple" >
-        <SpeedChange title="インタフェース生産性推進" koutei="SS" width="500px" height="400px" type=2></SpeedChange>
+        <SpeedChange title="インタフェース生産性推進" :phase="phaseSelect" width="500px" height="400px" type="2"></SpeedChange>
       </div>
     </el-col>
   </el-row>
@@ -135,6 +149,8 @@ import {getSSItems, getPGItems, SS_items} from '../Model/data';
 
 let message = '';
 
+let phaseSelect = ref("SS");
+
 onMounted(() => {
 
   getSSItems();
@@ -173,6 +189,11 @@ onMounted(() => {
     //console.log(message);
 });
 
+// computed({
+//     targetDate() {
+//       return this.inputDate.toDateString()+"";
+//     }
+// });
 </script>
 
 <style scoped>
