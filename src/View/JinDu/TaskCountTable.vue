@@ -1,5 +1,8 @@
 <template>
-    <HotTable :licenseKey="licenseKey" ref="CountTableComp" width=800></HotTable>
+<div width=780>
+    <h3>{{this.$props.phase}}進捗詳細</h3>
+    <HotTable :licenseKey="licenseKey" ref="CountTableComp"></HotTable>
+</div>
 </template>
 
 <script lang="ts">

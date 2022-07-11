@@ -77,8 +77,7 @@
     </el-col>
     <el-col :span="16">
       <div class="grid-content bg-purple">
-        <h2>SS進捗詳細</h2>
-        <TaskCountTable phase='SS' inputDate='' lot=''></TaskCountTable>
+        <TaskCountTable phase='SS' inputDate='' lot='' height="280px"></TaskCountTable>
       </div>
     </el-col>
   </el-row>
@@ -95,8 +94,7 @@
     </el-col>
     <el-col :span="16">
       <div class="grid-content bg-purple">
-        <h2>PG進捗詳細</h2>
-        <TaskCountTable phase='PG' inputDate='' lot=''></TaskCountTable>
+        <TaskCountTable phase='PG' inputDate='' lot='' height="280px"></TaskCountTable>
       </div>
     </el-col>
   </el-row>
@@ -113,8 +111,7 @@
     </el-col>
     <el-col :span="16">
       <div class="grid-content bg-purple">
-        <h2>PT仕進捗詳細</h2>
-        <TaskCountTable phase='PTDOC' inputDate='' lot=''></TaskCountTable>
+        <TaskCountTable phase='PTDOC' inputDate='' lot='' height="280px"></TaskCountTable>
       </div>
     </el-col>
   </el-row>
@@ -131,8 +128,7 @@
     </el-col>
     <el-col :span="16">
       <div class="grid-content bg-purple">
-        <h2>PT進捗詳細</h2>
-        <TaskCountTable phase='PT' inputDate='' lot=''></TaskCountTable>
+        <TaskCountTable phase='PT' inputDate='' lot='' height="280px"></TaskCountTable>
       </div>
     </el-col>
   </el-row>
