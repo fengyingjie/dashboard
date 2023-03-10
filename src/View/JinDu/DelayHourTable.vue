@@ -1,4 +1,12 @@
 <template>
+    <el-row>
+    <el-col :span="2"><span>name:</span></el-col>
+    <el-col :span="6"><input type="text" v-model="username" /></el-col>
+    <el-col :span="2"><span>password:</span></el-col>
+    <el-col :span="6"><input type="password" v-model="password" /></el-col>
+    <el-col :span="2"><button @click="commitToRedmine">更新</button></el-col>
+    <el-col :span="6"></el-col>
+    </el-row>
     <HotTable :licenseKey="hotSetting.licenseKey" ref="DelayInHourTableComp"></HotTable>
 </template>
 
@@ -8,8 +16,10 @@ import Handsontable from 'handsontable/base';
 import { registerAllModules } from 'handsontable/registry';
 import { onMounted, ref, watch, reactive, getCurrentInstance } from 'vue';
 import { getPenddingQAByID, getSSItems, getPTDOCItems, getPGItems, getPTItems, 
-         SS_items, PTDOC_items, PG_items, PT_items, getWBSDatabyPhase, initDataUpdateFlag } from '../../Model/data';
+         SS_items, PTDOC_items, PG_items, PT_items, getWBSDatabyPhase, initDataUpdateFlag, QA_items } from '../../Model/data';
 import { DateUtil, getKind } from '../../Model/Common';
+import axios, { AxiosRequestConfig } from 'axios';
+import { format } from 'util';
 //import { GridSettings } from 'handsontable/settings';
 
 //定义props变量
@@ -24,10 +34,12 @@ registerAllModules();
 
 //hotTable控件
 const DelayInHourTableComp = ref();
+let username = ref('');
+let password = ref('');
 
-const hotSetting = {
+let hotSetting = {
   licenseKey : 'non-commercial-and-evaluation',
-  colWidths: 60,
+  colWidths: [15,75,220,120,100,40,40,40,40,40,40,40,40,40,40,40,40,80,80,80,150],
   height: 'auto',
   comments: true,
   manualColumnResize: true,
@@ -39,9 +51,107 @@ const hotSetting = {
     }
   },
   nestedHeaders : [
-    ['ID','名称','カテゴリ','状態',{label:'作成', colspan:5},{label:'レビュー', colspan:5},'備考'],
-    ['ID','名称','カテゴリ','状態','目標','記入','予定','実績','前倒/遅延','目標','記入','予定','実績','前倒/遅延','備考']
+    ['選択','ID','名称','カテゴリ','状態',{label:'作成', colspan:7},{label:'レビュー', colspan:5},{label:'遅延対策', colspan:3},'備考'],
+    ['選択','ID','名称','カテゴリ','状態','目標','記入','予定','実績','理解','作業','前/遅','目標','記入','予定','実績','前/遅','遅延理由','QA状況','リカバリー期日','備考']
   ],
+  columns: [
+    {
+      data: 'checkbox',
+      type: 'checkbox'
+    },
+    {
+      data: 'id',
+      readOnly: true
+    },
+    {
+      data: 'name',
+      readOnly: true
+    },
+    {
+      data: 'category',
+      readOnly: true
+    },
+    {
+      data: 'status',
+      readOnly: true
+    },
+    {
+      data: 'writetargetrate',
+      readOnly: true
+    },
+    {
+      data: 'writedrate',
+      editor: 'dropdown',
+      source: [ '0%', '5%','10%','15%','20%','25%','30%',
+                      '35%','40%','45%','50%','55%','60%','65%',
+                      '70%','75%','80%','85%','90%','95%','100%']
+    },
+    {
+      data: 'createTime1',
+      type: 'numeric',
+      readOnly: true
+    },
+    {
+      data: 'createTime2',
+      type: 'numeric',
+      readOnly: true
+    },
+    {
+      data: 'createTime21',
+      type: 'numeric'
+    },
+    {
+      data: 'createTime22',
+      type: 'numeric'
+    },
+    {
+      data: 'createTime3',
+      type: 'numeric',
+      readOnly: true
+    },
+    {
+      data: 'reviewtargetrate',
+      type: 'numeric',
+      readOnly: true
+    },
+    {
+      data: 'reviewdrate',
+      editor: 'dropdown',
+      source: [ '0%', '5%','10%','15%','20%','25%','30%',
+                      '35%','40%','45%','50%','55%','60%','65%',
+                      '70%','75%','80%','85%','90%','95%','100%']
+    },
+    {
+      data: 'reviewTime1',
+      type: 'numeric',
+      readOnly: true
+    },
+    {
+      data: 'reviewTime2',
+      type: 'numeric'
+    },
+    {
+      data: 'reviewTime3',
+      type: 'numeric',
+      readOnly: true
+    },
+    {
+      data: 'delayReason',
+    },
+    {
+      data: 'unClosedQA',
+      readOnly: true
+    },
+    {
+      data: 'recorveryDate',
+      type: 'date',
+      dateFormat: 'YYYY-MM-DD'
+    },
+    {
+      data: 'message',
+      readOnly: true
+    },
+  ]
 };
 
 let wbs_items:Array<any>;
@@ -69,43 +179,6 @@ watch(
   }
 );
 
-// //从redmineRestAPI获取数据
-// const updateData = async () => {
-//   let items = new Array();
-//   let hotData = new Array<any>();
-//   let comments = [
-//     {category: '画面',value:['','','','']},
-//     {category: 'バッチ',value:['','','','']},
-//     {category: 'IF',value:['','','','']},
-//   ];
-//   switch(props.phase){
-//       case 'PTDOC': {
-//           await getPTDOCItems();
-//           items = PTDOC_items;
-//           break;
-//       }
-//       case 'PG':{
-//           await getPGItems();
-//           items = PG_items;
-//           break;
-//       }
-//       case 'PT':{
-//           await getPTItems();
-//           items = PT_items;
-//           break;
-//       }
-//       default : {
-//           await getSSItems();
-//           items = SS_items;
-//           break;
-//       }
-//   }
-//   computeDelayHour(items,hotData);
-//   hotSetting.data = hotData;
-//   //更新hotTable
-//   DelayInHourTableComp.value.hotInstance.updateSettings(hotSetting);
-// };
-
 //从redmineRestAPI获取数据
 function updateData(){
 
@@ -131,14 +204,26 @@ function computeDelayHour(items: any[],hotData :any[]){
       let reviewrate:number = parseFloat(item.custom_fields[41].value)/100.0;
       let writetargetrate:number = 0.0;
       let reviewtargetrate:number = 0.0;
-      let meisai = { id:'',category: '',name: '',status:'',writetargetrate:'',writedrate:'',createTime1:0,createTime2:0,createTime3:0,reviewtargetrate:'',reviewdrate:'',reviewTime1:0,reviewTime2:0,reviewTime3:0,message:''};
+      let meisai = { checkbox:'',issueno:'',id:'',name: '',category: '',status:'',
+          writetargetrate:'',writedrate:'',createTime1:0,createTime2:0,createTime21:0,createTime22:0,createTime3:0,
+          reviewtargetrate:'',reviewdrate:'',reviewTime1:0,reviewTime2:0,reviewTime3:0,
+          delayReason:'',unClosedQA:'',recorveryDate:'',
+          message:''};
 
+      meisai.issueno = item.id;
       meisai.id = item.custom_fields[9].value;
       meisai.name = item.custom_fields[13].value;
       meisai.category = item.custom_fields[11].value;
       meisai.status = item.status.name;
       meisai.writedrate=item.custom_fields[37].value;
-      meisai.reviewdrate=item.custom_fields[41].value;  
+      meisai.reviewdrate=item.custom_fields[41].value;
+
+      //遅延理由
+      meisai.delayReason = item.custom_fields[48].value;
+      //リカバリー期日
+      meisai.recorveryDate = item.custom_fields[49].value;
+      //未完了QA
+      meisai.unClosedQA = getPenddingQAByID(meisai.id).toString();
       
       //J1理解時間(予定) + 作業時間(予定)
       meisai.createTime1 = item.custom_fields[23].value/1 + item.custom_fields[26].value/1;
@@ -147,6 +232,8 @@ function computeDelayHour(items: any[],hotData :any[]){
 
       //J1理解時間(実績) + 作業時間(実績)
       meisai.createTime2 = item.custom_fields[35].value/1 + item.custom_fields[39].value/1;
+      meisai.createTime21 = item.custom_fields[35].value/1;
+      meisai.createTime22 = item.custom_fields[39].value/1;
 
       //内部ﾚﾋﾞｭｰ時間(実績)
       meisai.reviewTime2 = item.custom_fields[43].value/1;
@@ -217,6 +304,52 @@ function computeDelayHour(items: any[],hotData :any[]){
   });
 
   hotSetting.cell = [];
+}
+
+async function commitToRedmine(){
+
+  let config:AxiosRequestConfig = {};
+  config.withCredentials = true;
+  config.auth = {username: username.value,password: password.value};
+  config.baseURL = 'hopeRedmine';
+  let newaxios = axios.create(config);
+
+  let hotData = hotSetting.data;
+
+  hotData.forEach(item=>{
+
+    if(item.checkbox){
+
+      let putData = {
+        "issue":
+        {
+          "id": item.issueno, 
+          "custom_fields":
+          [ 
+            {"id": 1396,"name": "作業進捗率","value": item.writedrate}, 
+            {"id": 1395,"name": "J1理解時間(実績)","value": item.createTime21},
+            {"id": 1393,"name": "作業時間(実績)","value": item.createTime22},
+            {"id": 1417,"name": "内部ﾚﾋﾞｭｰ進捗率","value": item.reviewdrate}, 
+            {"id": 162,"name": "内部ﾚﾋﾞｭｰ時間(実績)","value": item.reviewTime2},
+
+            {"id": 1376,"name": "作業遅延理由","value": item.delayReason},
+            {"id": 136,"name": "遅延リカバリ期日","value": item.recorveryDate},
+          ]
+        }
+      };
+
+      let url = '/issues/' + item.issueno + '.json';
+       newaxios.put(url,
+          putData
+       ).then(res => {
+         if(res.status == 200){
+            alert(item.issueno + ":" + item.name + "更新済");
+         }
+      }).catch(reason => {
+        alert(reason);
+      });
+    };
+  });
 }
 </script>
 

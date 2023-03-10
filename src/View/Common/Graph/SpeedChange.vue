@@ -3,30 +3,34 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted} from 'vue';
+import { ref, watch, onMounted, reactive} from 'vue';
 //引入echats包
 import * as echarts from 'echarts';
-import { SS_items, SS_count, PG_items, PG_count,} from '../../../Model/data';
+import { SS_items, PG_items, PTDOC_items, PT_items} from '../../../Model/data';
 import { DateUtil, getKind } from "../../../Model/Common";
 
 const echartDom : any = ref();
+let myChart : any;
 
 //定义props变量
 const props = defineProps({
     title: { type:String,default: '',required: true },
-    kotei: { type:String,default: '',required: true },
+    phase: { type:String,default: '',required: true },
+    //targertSpeed: { type:Number,default: 6,required: true},
     width: { type:String,default: '',required: true },
     height: { type:String,default: '',required: true},
-    type: { type:Number,default: 0,required: true},
+    type: { type:String,default: '0',required: true},
 });
+
+const targetPahse = ref(props.phase);
 //挂载函数
 onMounted(()=>{
     
     //根据父节点宽度设置图形宽度
     echartDom.value.style.width = echartDom.value.parentElement.parentElement.clientWidth + "px";
     //初始化echarts实例
-    const myChart = echarts.init(echartDom.value);
-    let sourcedata = computerData(props.kotei);
+    myChart = echarts.init(echartDom.value);
+    let sourcedata = computerData(props.phase);
 
     //sourcedata.then((data  : any) =>{
         let option : echarts.EChartsOption = {
@@ -68,7 +72,46 @@ onMounted(()=>{
     //});
 });
 
-function computerData(kotei:string):[{}]{
+watch(targetPahse, (newV, oldV) => {
+    alert(newV);
+    let sourcedata = computerData(props.phase);
+    let option : echarts.EChartsOption = {
+        grid: {left: '3%',right: '7%',bottom: '12%',containLabel: true},
+        dataZoom: [{type: 'slider',start: 0,end: 100}],
+        xAxis: [
+            {
+                type: 'category',
+                axisLabel: {formatter: '{value}'},
+                splitLine: {show: true}
+            }
+        ],
+        yAxis: [
+            {   
+                name:'生産性',
+                type: 'value',scale: true,
+                axisLabel: {formatter: '{value}ks/人月'},
+                splitLine: {show: true},
+                min:2,
+                max:10
+            },
+            {
+                name:'完了数',
+                type: 'value',scale: true,
+                axisLabel: {formatter: '{value}本'},
+                splitLine: {show: true},
+                position:'right',
+                min:0
+            }
+        ],
+        tooltip: {trigger: 'axis'},
+        title : {text: props.title },
+        series: sourcedata
+    };
+    //使用配置项渲染图表
+    option && myChart.setOption(option);
+});
+
+function computerData(phase:string):[{}]{
     
     let series;
     let targetMap = new Map<string,number>();
@@ -79,13 +122,19 @@ function computerData(kotei:string):[{}]{
     let endDay = new Date('2022-02-01');
     let items = SS_items;
 
-    if(kotei === 'PG'){
+    if(phase === 'PG'){
        items = PG_items; 
+    }
+    if(phase === 'PTDOC'){
+       items = PTDOC_items; 
+    }
+        if(phase === 'PT'){
+       items = PT_items; 
     }
     
     items.forEach(item => {
         
-        if(getKind(item.custom_fields[11].value) == props.type){
+        if(getKind(item.custom_fields[11].value) == (props.type/1)){
             
             //内部ﾚﾋﾞｭｰ終了日(実績)
             let day = item.custom_fields[42].value;

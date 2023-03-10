@@ -19,8 +19,8 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/redmineapi/, '')
       },
-      "/counter": {
-        target: "http://localhost:8080/counter",
+      "^/counter": {
+        target: "http://10.167.23.14:8080/counter",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/counter/, '')
       },

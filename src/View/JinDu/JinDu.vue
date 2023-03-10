@@ -6,7 +6,6 @@
   </el-row>
   <el-row>
     <el-col :span="24">
-      <span>SS進捗状況</span>
       <div class="grid-content bg-purple" >
         <TaskCountTable phase='SS' :inputDate='targetDate' :lot='lot' ref='SSTableComp'></TaskCountTable>
       </div>
@@ -14,7 +13,6 @@
   </el-row>
   <el-row>
     <el-col :span="24">
-      <span>PG進捗状況</span>
       <div class="grid-content bg-purple" >
         <TaskCountTable phase='PG' :inputDate='targetDate' :lot='lot' ref='PGTableComp'></TaskCountTable>
       </div>
@@ -22,7 +20,6 @@
   </el-row>
   <el-row>
     <el-col :span="24">
-      <span>PT仕進捗状況</span>
       <div class="grid-content bg-purple" >
         <TaskCountTable phase='PTDOC' :inputDate='targetDate' :lot='lot' ref='PTDOCTableComp'></TaskCountTable>
       </div>
@@ -30,7 +27,6 @@
   </el-row>
   <el-row>
     <el-col :span="24">
-      <span>PT実施進捗状況</span>
       <div class="grid-content bg-purple" >
         <TaskCountTable phase='PT' :inputDate='targetDate' :lot='lot' ref='PTTableComp'></TaskCountTable>
       </div>
@@ -164,7 +160,6 @@ export default{
 
   computed: {
     targetDate() {
-      //this.$refs.SSTableComp.updateTable(this.$data.inputDate);
       return this.inputDate.toDateString()+"";
     }
   }
