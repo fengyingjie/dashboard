@@ -1,8 +1,8 @@
 <template>
     <el-row>
-    <el-col :span="2"><lable>name:</lable></el-col>
+    <el-col :span="2"><span>name:</span></el-col>
     <el-col :span="6"><input type="text" v-model="username" /></el-col>
-    <el-col :span="2"><lable>password:</lable></el-col>
+    <el-col :span="2"><span>password:</span></el-col>
     <el-col :span="6"><input type="password" v-model="password" /></el-col>
     <el-col :span="2"><button @click="commitToRedmine">更新</button></el-col>
     <el-col :span="6"></el-col>
@@ -16,9 +16,10 @@ import Handsontable from 'handsontable/base';
 import { registerAllModules } from 'handsontable/registry';
 import { onMounted, ref, watch, reactive, getCurrentInstance } from 'vue';
 import { getPenddingQAByID, getSSItems, getPTDOCItems, getPGItems, getPTItems, 
-         SS_items, PTDOC_items, PG_items, PT_items, getWBSDatabyPhase, initDataUpdateFlag } from '../../Model/data';
+         SS_items, PTDOC_items, PG_items, PT_items, getWBSDatabyPhase, initDataUpdateFlag, QA_items } from '../../Model/data';
 import { DateUtil, getKind } from '../../Model/Common';
 import axios, { AxiosRequestConfig } from 'axios';
+import { format } from 'util';
 //import { GridSettings } from 'handsontable/settings';
 
 //定义props变量
@@ -38,7 +39,7 @@ let password = ref('');
 
 let hotSetting = {
   licenseKey : 'non-commercial-and-evaluation',
-  colWidths: [15,75,220,120,100,40,40,40,40,40,40,40,40,40,40,40,40,180],
+  colWidths: [15,75,220,120,100,40,40,40,40,40,40,40,40,40,40,40,40,80,80,80,150],
   height: 'auto',
   comments: true,
   manualColumnResize: true,
@@ -50,8 +51,8 @@ let hotSetting = {
     }
   },
   nestedHeaders : [
-    ['選択','ID','名称','カテゴリ','状態',{label:'作成', colspan:7},{label:'レビュー', colspan:5},'備考'],
-    ['選択','ID','名称','カテゴリ','状態','目標','記入','予定','実績','理解','作業','前/遅','目標','記入','予定','実績','前/遅','備考']
+    ['選択','ID','名称','カテゴリ','状態',{label:'作成', colspan:7},{label:'レビュー', colspan:5},{label:'遅延対策', colspan:3},'備考'],
+    ['選択','ID','名称','カテゴリ','状態','目標','記入','予定','実績','理解','作業','前/遅','目標','記入','予定','実績','前/遅','遅延理由','QA状況','リカバリー期日','備考']
   ],
   columns: [
     {
@@ -135,6 +136,18 @@ let hotSetting = {
       readOnly: true
     },
     {
+      data: 'delayReason',
+    },
+    {
+      data: 'unClosedQA',
+      readOnly: true
+    },
+    {
+      data: 'recorveryDate',
+      type: 'date',
+      dateFormat: 'YYYY-MM-DD'
+    },
+    {
       data: 'message',
       readOnly: true
     },
@@ -191,7 +204,11 @@ function computeDelayHour(items: any[],hotData :any[]){
       let reviewrate:number = parseFloat(item.custom_fields[41].value)/100.0;
       let writetargetrate:number = 0.0;
       let reviewtargetrate:number = 0.0;
-      let meisai = { checkbox:'',issueno:'',id:'',name: '',category: '',status:'',writetargetrate:'',writedrate:'',createTime1:0,createTime2:0,createTime21:0,createTime22:0,createTime3:0,reviewtargetrate:'',reviewdrate:'',reviewTime1:0,reviewTime2:0,reviewTime3:0,message:''};
+      let meisai = { checkbox:'',issueno:'',id:'',name: '',category: '',status:'',
+          writetargetrate:'',writedrate:'',createTime1:0,createTime2:0,createTime21:0,createTime22:0,createTime3:0,
+          reviewtargetrate:'',reviewdrate:'',reviewTime1:0,reviewTime2:0,reviewTime3:0,
+          delayReason:'',unClosedQA:'',recorveryDate:'',
+          message:''};
 
       meisai.issueno = item.id;
       meisai.id = item.custom_fields[9].value;
@@ -199,7 +216,14 @@ function computeDelayHour(items: any[],hotData :any[]){
       meisai.category = item.custom_fields[11].value;
       meisai.status = item.status.name;
       meisai.writedrate=item.custom_fields[37].value;
-      meisai.reviewdrate=item.custom_fields[41].value;  
+      meisai.reviewdrate=item.custom_fields[41].value;
+
+      //遅延理由
+      meisai.delayReason = item.custom_fields[48].value;
+      //リカバリー期日
+      meisai.recorveryDate = item.custom_fields[49].value;
+      //未完了QA
+      meisai.unClosedQA = getPenddingQAByID(meisai.id).toString();
       
       //J1理解時間(予定) + 作業時間(予定)
       meisai.createTime1 = item.custom_fields[23].value/1 + item.custom_fields[26].value/1;
@@ -306,7 +330,10 @@ async function commitToRedmine(){
             {"id": 1395,"name": "J1理解時間(実績)","value": item.createTime21},
             {"id": 1393,"name": "作業時間(実績)","value": item.createTime22},
             {"id": 1417,"name": "内部ﾚﾋﾞｭｰ進捗率","value": item.reviewdrate}, 
-            {"id": 162,"name": "内部ﾚﾋﾞｭｰ時間(実績)","value": item.reviewTime2}
+            {"id": 162,"name": "内部ﾚﾋﾞｭｰ時間(実績)","value": item.reviewTime2},
+
+            {"id": 1376,"name": "作業遅延理由","value": item.delayReason},
+            {"id": 136,"name": "遅延リカバリ期日","value": item.recorveryDate},
           ]
         }
       };

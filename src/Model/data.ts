@@ -182,7 +182,7 @@ function getPenddingQAByID(id:string):String{
 
     QA_items.forEach(item => {
         if(item.subject.indexOf(id) >= 0 && item.status.id != 47 && item.status.id !=13 ){
-           ret = ret + ',' + item.id + '('+item.status.name+')';
+           ret = ret + ',#' + item.id + '('+item.status.name+')';
         }
     });
 
