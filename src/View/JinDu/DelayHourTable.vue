@@ -18,7 +18,6 @@ import { onMounted, ref, watch, reactive, getCurrentInstance } from 'vue';
 import { getPenddingQAByID, getSSItems, getPTDOCItems, getPGItems, getPTItems, 
          SS_items, PTDOC_items, PG_items, PT_items, getWBSDatabyPhase, initDataUpdateFlag, QA_items } from '../../Model/data';
 import { DateUtil, getKind } from '../../Model/Common';
-import axios, { AxiosRequestConfig } from 'axios';
 import { format } from 'util';
 //import { GridSettings } from 'handsontable/settings';
 
@@ -209,7 +208,6 @@ function computeDelayHour(items: any[],hotData :any[]){
           reviewtargetrate:'',reviewdrate:'',reviewTime1:0,reviewTime2:0,reviewTime3:0,
           delayReason:'',unClosedQA:'',recorveryDate:'',
           message:''};
-
       meisai.issueno = item.id;
       meisai.id = item.custom_fields[9].value;
       meisai.name = item.custom_fields[13].value;
