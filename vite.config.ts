@@ -43,7 +43,12 @@ export default defineConfig({
         target: "http://164.69.117.197/tidd/",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/hopeRedmine/, '') 
-      }
+      },
+      "^/getDataAPI": {
+        target: "http://10.167.72.82:5000/",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/getDataAPI/, '')
+      },
     },
   },
 })
