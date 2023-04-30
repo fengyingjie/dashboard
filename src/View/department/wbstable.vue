@@ -8,6 +8,7 @@
     <button @click="getSAPData()">取得SAP数据</button>
     <button @click="getYousanData()">取得预算数据</button>
     <button @click="getOutResource()">取得外驻数据</button>
+    <button @click="getPlanData()">取得计划数据</button>
     <button @click="calcWorkProfit()">最新化损益数据</button>
     <!--消息-->
     <div class="message">
@@ -140,6 +141,14 @@ async function calcWorkProfit(){
 async function getOutResource() {
   message.value = "Reading 外驻金额数据, Please wait...";
   axios.get("/api/getOutResourceData").then(res => {
+    message.value = res.data;
+  });
+}
+
+//计划数据取得按钮处理函数
+async function getPlanData() {
+  message.value = "Reading 计划数据, Please wait...";
+  axios.get("/api/getPlanData").then(res => {
     message.value = res.data;
   });
 }
