@@ -61,28 +61,22 @@ let hotSetting = {
   },
   nestedHeaders : [
     //1月-12月
-    ['WBS','type','kind','去年まで','1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月','来年以降']
+    ['WBS','name','计划工数原价率','计划全体原价率','计划工数','实际工数','计划外驻','实际外驻','计划旅费','实际旅费','预计其他费用','实际其他费用']
   ],
   //列データ定義
   columns: [
     {data:'wbs',readOnly: true},
-    {data:'type',readOnly: true},
-    {data:'kind',readOnly: true},
-    {data:'dataLastYear',type: 'numeric',numericFormat: {pattern: '0.0'},readOnly: true},
-    //1月の工数を数字と0.0で表示するように定義
-    {data:'data1',type:'numeric',numericFormat: {pattern: '0.0'}},
-    {data:'data2',type:'numeric',numericFormat: {pattern: '0.0'}},
-    {data:'data3',type:'numeric',numericFormat: {pattern: '0.0'}},
-    {data:'data4',type:'numeric',numericFormat: {pattern: '0.0'}},
-    {data:'data5',type:'numeric',numericFormat: {pattern: '0.0'}},
-    {data:'data6',type:'numeric',numericFormat: {pattern: '0.0'}},
-    {data:'data7',type:'numeric',numericFormat: {pattern: '0.0'}},
-    {data:'data8',type:'numeric',numericFormat: {pattern: '0.0'}},
-    {data:'data9',type:'numeric',numericFormat: {pattern: '0.0'}},
-    {data:'data10',type:'numeric',numericFormat: {pattern: '0.0'}},
-    {data:'data11',type:'numeric',numericFormat: {pattern: '0.0'}},
-    {data:'data12',type:'numeric',numericFormat: {pattern: '0.0'}},
-    {data:'dataNextYear',type:'numeric',numericFormat: {pattern: '0.0'},readOnly: true}
+    {data:'name',readOnly: true},
+    {data:'planWorkHourORP',type:'numeric',numericFormat: {pattern: '0.0%'},readOnly: true},
+    {data:'planORP',type: 'numeric',numericFormat: {pattern: '0.0%'},readOnly: true},
+    {data:'PlanWorkTime',type:'numeric',numericFormat: {pattern: '0.0'}},
+    {data:'RealWorkTime',type:'numeric',numericFormat: {pattern: '0.0'}},
+    {data:'PlanOutAmount',type:'numeric',numericFormat: {pattern: '0.0'}},
+    {data:'RealOutAmount',type:'numeric',numericFormat: {pattern: '0.0'}},
+    {data:'PlanTravleAmount',type:'numeric',numericFormat: {pattern: '0.0'}},
+    {data:'RealTravleAmount',type:'numeric',numericFormat: {pattern: '0.0'}},
+    {data:'PlanOtherAmount',type:'numeric',numericFormat: {pattern: '0.0'}},
+    {data:'RealOtherAmount',type:'numeric',numericFormat: {pattern: '0.0'}},
   ],
 }
 
@@ -93,13 +87,13 @@ onMounted(()=>{
     axios.defaults.baseURL = 'getDataAPI';
     axios.get("/api/wbsprofit").then(res => {
 
-      let mergeCells = [];
+      // let mergeCells = [];
       wbsTable.value.hotInstance.updateSettings(hotSetting);
       wbsTable.value.hotInstance.updateData(res.data);
-      for(let i=0; i<res.data.length; i=i+2){
-        mergeCells.push({ row: i, col: 0, rowspan: 2, colspan: 1 });
-      }
-      wbsTable.value.hotInstance.updateSettings({'mergeCells': mergeCells});
+      // for(let i=0; i<res.data.length; i=i+2){
+      //   mergeCells.push({ row: i, col: 0, rowspan: 2, colspan: 1 });
+      // }
+      // wbsTable.value.hotInstance.updateSettings({'mergeCells': mergeCells});
     }); 
 });
 
@@ -128,11 +122,11 @@ async function calcWorkProfit(){
   await axios.get("/api/wbsprofit").then(res => {
  
     wbsTable.value.hotInstance.updateData(res.data);
-    let mergeCells = [];
-    for(let i=0; i<res.data.length; i=i+2){
-        mergeCells.push({ row: i, col: 0, rowspan: 2, colspan: 1 });
-      }
-    wbsTable.value.hotInstance.updateSettings({'mergeCells': mergeCells});
+    // let mergeCells = [];
+    // for(let i=0; i<res.data.length; i=i+2){
+    //     mergeCells.push({ row: i, col: 0, rowspan: 2, colspan: 1 });
+    //   }
+    // wbsTable.value.hotInstance.updateSettings({'mergeCells': mergeCells});
     message.value = "数据最表示最新化完成";
   }); 
 }
