@@ -5,6 +5,7 @@
     <select v-model="monthSelector.selectedMonth">
       <option v-for="month in monthSelector.months" :value="month.key">{{ month.value }}</option>
     </select>
+    <button @click="getHRData()">取得人员数据</button>
     <button @click="getSAPData()">取得SAP数据</button>
     <button @click="getYousanData()">取得预算数据</button>
     <button @click="getOutResource()">取得外驻数据</button>
@@ -15,18 +16,82 @@
       <span v-if=message>{{ message }}</span>
     </div>
     <HotTable :licenseKey="hotSetting.licenseKey" ref="wbsTable"></HotTable>
+    <v-chart class="chart" :option="option" autoresize />
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, reactive } from 'vue';
+import { onMounted, ref, reactive, provide } from 'vue';
 import Handsontable from 'handsontable/base';
 import { HotTable,HotColumn } from '@handsontable/vue3';
 import { registerAllModules } from 'handsontable/registry';
 import axios from 'axios';
 import { assertPipelinePrimaryTopicReference } from '@babel/types';
 
+import { use } from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
+import { PieChart } from 'echarts/charts';
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+} from 'echarts/components';
+import VChart, { THEME_KEY } from 'vue-echarts';
+
+
 // register Handsontable's modules
 registerAllModules();
+
+use([
+  CanvasRenderer,
+  PieChart,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+]);
+
+// provide(THEME_KEY, 'dark');
+const option = reactive({
+  title: {
+    text: 'Traffic Sources',
+    left: 'center',
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: '{b} <br/> : {c} ({d}%)',
+  },
+  // legend: {
+  //   orient: 'vertical',
+  //   left: 'left',
+  //   data: ['Direct', 'Email', 'Ad Networks', 'Video Ads', 'Search Engines'],
+  // },
+  dataset: [
+    {
+      dimensions: ['name', 'workHour', 'otherHour'],
+      source: []
+    }
+  ],
+  xAxis: {
+    type: 'category',
+    axisLabel: { interval: 0, rotate: 50 }
+  },
+  yAxis: {},
+  series: [{
+    name: '直接工数',
+    type: 'bar',
+    label: {show: true},
+    stack: 'total',
+    encode: { x: 'name', y: 'workHour' }
+  },{
+    name: '间接工数',
+    type: 'bar',
+    label: {show: true},
+    stack: 'total',
+    encode: { x: 'name', y: 'otherHour' }
+  },{
+    type: 'line',
+    data:[]
+  }]
+});
 
 const wbsTable = ref();
 let message = ref();
@@ -94,7 +159,21 @@ onMounted(()=>{
       //   mergeCells.push({ row: i, col: 0, rowspan: 2, colspan: 1 });
       // }
       // wbsTable.value.hotInstance.updateSettings({'mergeCells': mergeCells});
-    }); 
+    });
+
+    axios.get("/api/personWorkTime").then(res => {
+
+      // //定义一个数组形数组变量
+      // res.data.forEach((data)=>{
+      //   //追加元素
+      //   option.series[2].data.push({
+      //     'name':data.name,
+      //     value:170
+      //   });
+      // }); 
+      option.dataset[0].source = res.data;
+    });
+    
 });
 
 //取得SAP数据按钮处理函数
@@ -146,6 +225,17 @@ async function getPlanData() {
     message.value = res.data;
   });
 }
+
+//取得人员数据按钮处理函数
+async function getHRData() {
+  message.value = "Reading 人员数据, Please wait...";
+  axios.get("/api/getHRData").then(res => {
+    message.value = res.data;
+  });
+}
 </script>
 <style src="handsontable/dist/handsontable.full.css">
+.chart {
+  height: 100vh;
+}
 </style>

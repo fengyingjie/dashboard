@@ -17,6 +17,7 @@
     "handsontable": "^11.1.0",
     "moment-business": "^3.0.1",
     "vue": "^3.2.25",
+    "vue-echarts": "^6.5.5",
     "vue-router": "^4.0.14",
     "xlsx": "^0.18.5"
   },
