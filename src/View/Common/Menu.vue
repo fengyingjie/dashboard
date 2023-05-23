@@ -8,20 +8,8 @@
     @select="handleSelect"
   >
     <el-menu-item index="graph">
-      <el-icon><icon-menu /></el-icon>
-      <template #title>menu</template>
-    </el-menu-item>
-    <el-menu-item index="delayList">
-      <el-icon><document /></el-icon>
-      <template #title>DelayList</template>
-    </el-menu-item>
-    <el-menu-item index="orderlist">
-      <el-icon><document /></el-icon>
-      <template #title>OrderList</template>
-    </el-menu-item>
-    <el-menu-item index="jindu">
-      <el-icon><icon-menu /></el-icon>
-      <template #title>Hope進捗 </template>
+      <el-icon><Picture /></el-icon>
+      <template #title>Dashboard</template>
     </el-menu-item>
     <el-menu-item index="setting">
       <el-icon><setting /></el-icon>
@@ -33,9 +21,8 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import {
-  Document,
-  Menu as IconMenu,
-  Location,
+  Menu,
+  Picture,
   Setting,
 } from '@element-plus/icons-vue'
 import {router} from "../../routes";

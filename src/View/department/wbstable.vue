@@ -1,22 +1,7 @@
 <template>
     <h3>プロジェクト一覧</h3>
-    <!--对象月下拉框-->
-    <label>对象月:</label>
-    <select v-model="monthSelector.selectedMonth">
-      <option v-for="month in monthSelector.months" :value="month.key">{{ month.value }}</option>
-    </select>
-    <button @click="getHRData()">取得人员数据</button>
-    <button @click="getSAPData()">取得SAP数据</button>
-    <button @click="getYousanData()">取得预算数据</button>
-    <button @click="getOutResource()">取得外驻数据</button>
-    <button @click="getPlanData()">取得计划数据</button>
-    <button @click="calcWorkProfit()">最新化损益数据</button>
-    <!--消息-->
-    <div class="message">
-      <span v-if=message>{{ message }}</span>
-    </div>
     <HotTable :licenseKey="hotSetting.licenseKey" ref="wbsTable"></HotTable>
-    <v-chart class="chart" :option="option" autoresize />
+    <div style="width: 500px; height: 300px;"><v-chart class="chart" :option="option" autoresize /></div>
 </template>
 
 <script setup lang="ts">
@@ -37,6 +22,13 @@ import {
 } from 'echarts/components';
 import VChart, { THEME_KEY } from 'vue-echarts';
 
+// import * from 'echarts';
+import { GridComponent } from 'echarts/components';
+
+import { BarChart } from 'echarts/charts';
+
+import { LineChart } from 'echarts/charts';
+
 
 // register Handsontable's modules
 registerAllModules();
@@ -47,6 +39,9 @@ use([
   TitleComponent,
   TooltipComponent,
   LegendComponent,
+  GridComponent,
+  BarChart,
+  LineChart,
 ]);
 
 // provide(THEME_KEY, 'dark');
@@ -236,6 +231,7 @@ async function getHRData() {
 </script>
 <style src="handsontable/dist/handsontable.full.css">
 .chart {
-  height: 100vh;
+  height: 300px;
+  width: 300px;
 }
 </style>
