@@ -1,7 +1,9 @@
 <template>
     <h3>プロジェクト一覧</h3>
     <HotTable :licenseKey="hotSetting.licenseKey" ref="wbsTable"></HotTable>
-    <div style="width: 500px; height: 300px;"><v-chart class="chart" :option="option" autoresize /></div>
+    <div style="width: 100%; height: 500px;">
+      <v-chart class="chart" :option="option" autoresize />
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -19,8 +21,9 @@ import {
   TitleComponent,
   TooltipComponent,
   LegendComponent,
+  DatasetComponent
 } from 'echarts/components';
-import VChart, { THEME_KEY } from 'vue-echarts';
+import VChart from 'vue-echarts';
 
 // import * from 'echarts';
 import { GridComponent } from 'echarts/components';
@@ -42,12 +45,13 @@ use([
   GridComponent,
   BarChart,
   LineChart,
+  DatasetComponent,
 ]);
 
 // provide(THEME_KEY, 'dark');
 const option = reactive({
   title: {
-    text: 'Traffic Sources',
+    text: '人别SAP计入时长',
     left: 'center',
   },
   tooltip: {
@@ -82,9 +86,6 @@ const option = reactive({
     label: {show: true},
     stack: 'total',
     encode: { x: 'name', y: 'otherHour' }
-  },{
-    type: 'line',
-    data:[]
   }]
 });
 
@@ -159,14 +160,15 @@ onMounted(()=>{
     axios.get("/api/personWorkTime").then(res => {
 
       // //定义一个数组形数组变量
-      // res.data.forEach((data)=>{
+      // res.data.forEach((res.data)=>{
       //   //追加元素
-      //   option.series[2].data.push({
+      //   option.dataset.source[0].push({
       //     'name':data.name,
       //     value:170
-      //   });
+      //   })
       // }); 
       option.dataset[0].source = res.data;
+      console.log(res.data);
     });
     
 });
